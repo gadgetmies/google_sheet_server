@@ -1,0 +1,13 @@
+{
+  "dev": {
+    "driver": "pg",
+    "host": "localhost",
+    "database": "rankedlist"
+  },
+  "prod": {
+    "driver": "pg",
+    "ssl": {
+      "rejectUnauthorized": false
+    }
+  }
+}
