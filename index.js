@@ -5,21 +5,24 @@ const app = express()
 const winston = require('winston')
 const expressWinston = require('express-winston')
 const logger = require('./logger')(__filename)
-const passport = require('passport')
-const BasicStrategy = require('passport-http').BasicStrategy;
 const cors = require('cors');
+const { expressjwt: jwt } = require('express-jwt');
+const jwks = require('jwks-rsa');
+const port = process.env.PORT || 8080;
 
-passport.use(new BasicStrategy(
-  function (userid, password, done) {
-    if (userid === process.env.USERNAME && password === process.env.PASSWORD) {
-      return done(null, {})
-    } else {
-      return done(null, false)
-    }
-  }
-));
+const jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://gadgetmies.eu.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'https://google-sheet-server.herokuapp.com',
+  issuer: 'https://gadgetmies.eu.auth0.com/',
+  algorithms: ['RS256']
+});
 
-app.use(passport.initialize());
+app.use(jwtCheck);
 
 app.use(expressWinston.errorLogger({
   transports: [
@@ -48,8 +51,7 @@ app.use(expressWinston.logger({
   } // optional: allows to skip some log messages based on request and/or response
 }));
 
-app.use('/api', cors(), passport.authenticate('basic', {session: false}), require('./routes/index'))
+app.use('/api', cors(), require('./routes/index'))
 
-const port = process.env.PORT
 app.listen(port)
 logger.info(`Listening on port: ${port}`)
