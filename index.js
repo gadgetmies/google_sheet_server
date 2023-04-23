@@ -15,10 +15,10 @@ const jwtCheck = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: 'https://gadgetmies.eu.auth0.com/.well-known/jwks.json'
+    jwksUri: process.env.JWKS_URI
   }),
-  audience: 'https://google-sheet-server.herokuapp.com',
-  issuer: 'https://gadgetmies.eu.auth0.com/',
+  audience: process.env.JWT_AUDIENCE,
+  issuer: process.env.JWT_ISSUER,
   algorithms: ['RS256']
 });
 
